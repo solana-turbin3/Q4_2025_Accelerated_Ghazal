@@ -1,0 +1,56 @@
+{
+  "address": "FDUE22UDZUMcGXeDRKJJbNX1GMh4CREWnziam8GkmerY",
+  "metadata": {
+    "name": "simple_agent",
+    "version": "0.1.1",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "callback_from_agent",
+      "discriminator": [152,228,9,75,159,238,133,197],
+      "accounts": [{"name":"identity"}],
+      "args": [{"name":"response","type":"string"}]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [175,175,109,31,13,152,155,237],
+      "accounts": [
+        {"name":"payer","writable":true,"signer":true},
+        {"name":"agent","writable":true,
+         "pda":{"seeds":[{"kind":"const","value":[97,103,101,110,116]}]}},
+        {"name":"llm_context","writable":true},
+        {"name":"counter","writable":true},
+        {"name":"system_program","address":"11111111111111111111111111111111"},
+        {"name":"oracle_program","address":"4cTXXUpQHbzrLRgXxqkFKFe8oHHjivUzaHP7d78EYTGK"}
+      ],
+      "args": []
+    },
+    {
+      "name": "interact_agent",
+      "discriminator": [29,244,136,236,66,239,235,88],
+      "accounts": [
+        {"name":"payer","writable":true,"signer":true},
+        {"name":"interaction","writable":true},
+        {"name":"agent","pda":{"seeds":[{"kind":"const","value":[97,103,101,110,116]}]}},
+        {"name":"context_account"},
+        {"name":"oracle_program","address":"4cTXXUpQHbzrLRgXxqkFKFe8oHHjivUzaHP7d78EYTGK"},
+        {"name":"system_program","address":"11111111111111111111111111111111"}
+      ],
+      "args": [{"name":"text","type":"string"}]
+    }
+  ],
+  "accounts": [
+    {"name":"Agent","discriminator":[47,166,112,147,155,197,86,7]},
+    {"name":"ContextAccount","discriminator":[75,176,185,173,144,35,90,109]},
+    {"name":"Counter","discriminator":[255,176,4,245,188,253,124,25]},
+    {"name":"Identity","discriminator":[58,132,5,12,176,164,85,112]}
+  ],
+  "types": [
+    {"name":"Agent","type":{"kind":"struct","fields":[{"name":"context","type":"pubkey"}]}},
+    {"name":"ContextAccount","docs":["Accounts"],"type":{"kind":"struct","fields":[{"name":"text","type":"string"}]}},
+    {"name":"Counter","type":{"kind":"struct","fields":[{"name":"count","type":"u32"}]}},
+    {"name":"Identity","type":{"kind":"struct","fields":[]}}
+  ]
+}

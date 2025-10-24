@@ -1,0 +1,106 @@
+{
+  "address": "5ydZBsgy14hPhvnfoWFg8fpghR91T6uJvtKknbd7yuBK",
+  "metadata": {
+    "name": "whitelist",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize_config",
+      "accounts": [
+        { "name": "admin", "isMut": true, "isSigner": true },
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_whitelist",
+      "accounts": [
+        { "name": "payer", "isMut": true, "isSigner": true },
+        { "name": "whitelist", "isMut": true, "isSigner": false },
+        { "name": "whitelistedAddress", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_whitelist",
+      "accounts": [
+        { "name": "admin", "isMut": true, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "whitelist", "isMut": true, "isSigner": false },
+        { "name": "whitelistedAddress", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "isBlocked", "type": "bool" }
+      ]
+    },
+    {
+      "name": "initialize_mint",
+      "accounts": [
+        { "name": "payer", "isMut": true, "isSigner": true },
+        { "name": "mint", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_extra_account_meta_list",
+      "accounts": [
+        { "name": "payer", "isMut": true, "isSigner": true },
+        { "name": "extraAccountMetaList", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_hook",
+      "accounts": [
+        { "name": "sourceToken", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": false, "isSigner": false },
+        { "name": "destinationToken", "isMut": true, "isSigner": false },
+        { "name": "owner", "isMut": false, "isSigner": false },
+        { "name": "extraAccountMetaList", "isMut": false, "isSigner": false },
+        { "name": "whitelist", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "admin", "type": "publicKey" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Whitelist",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "address", "type": "publicKey" },
+          { "name": "isBlocked", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidAdmin", "msg": "Whitelist admin does not match" },
+    { "code": 6001, "name": "NotTransferring", "msg": "Transfer hook cannot be directly invoked" },
+    { "code": 6002, "name": "AddressBlocked", "msg": "Address is blocked from transferring tokens" }
+  ]
+}
+

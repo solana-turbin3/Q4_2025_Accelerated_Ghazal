@@ -1,0 +1,22 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Node / TS
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.cache/
+coverage/
+*.log
+
+# Rust / Solana
+target/
+test-ledger/
+.ledger/
+.anchor/
+.svm/
+.solders/
