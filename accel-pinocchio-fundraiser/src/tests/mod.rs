@@ -39,19 +39,14 @@ mod tests {
         maker: &Keypair,
         mint: Pubkey,
         fundraiser_pda: Pubkey,
-        bump: u8,
         vault: Pubkey,
         amount_to_raise: u64,
-        current_amount: u64,
-        time_started: u64,
         duration_days: u8,
     ) -> Instruction {
         let data = [
             vec![0u8],                    // discriminator: Initialize
-            vec![bump],                   // bump
+            // No bump/current/time; program computes bump and sets state
             le_u64(amount_to_raise).to_vec(),
-            le_u64(current_amount).to_vec(),
-            le_u64(time_started).to_vec(),
             vec![duration_days],
         ].concat();
 
@@ -202,7 +197,7 @@ mod tests {
         let contributor_account = create_program_owned_account(&mut svm, &payer, 8, fr_program_id());
 
         // Initialize
-        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, fundraiser.1, vault, 30_000_000, 0, 0, 30);
+        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, vault, 30_000_000, 30);
         let msg = Message::new(&[init_ix], Some(&maker.pubkey()));
         let tx = Transaction::new(&[&maker], msg, svm.latest_blockhash());
         svm.send_transaction(tx).unwrap();
@@ -234,7 +229,7 @@ mod tests {
         let vault = spl_associated_token_account::get_associated_token_address(&fundraiser.0, &mint);
         let contributor_account = create_program_owned_account(&mut svm, &payer, 8, fr_program_id());
 
-        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, fundraiser.1, vault, 30_000_000, 0, 0, 30);
+        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, vault, 30_000_000, 30);
         let msg = Message::new(&[init_ix], Some(&maker.pubkey()));
         let tx = Transaction::new(&[&maker], msg, svm.latest_blockhash());
         svm.send_transaction(tx).unwrap();
@@ -271,7 +266,7 @@ mod tests {
         let vault = spl_associated_token_account::get_associated_token_address(&fundraiser.0, &mint);
         let contributor_account = create_program_owned_account(&mut svm, &payer, 8, fr_program_id());
 
-        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, fundraiser.1, vault, 30_000_000, 0, 0, 30);
+        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, vault, 30_000_000, 30);
         let msg = Message::new(&[init_ix], Some(&maker.pubkey()));
         let tx = Transaction::new(&[&maker], msg, svm.latest_blockhash());
         svm.send_transaction(tx).unwrap();
@@ -308,7 +303,7 @@ mod tests {
         let contributor_account = create_program_owned_account(&mut svm, &payer, 8, fr_program_id());
 
         // Initialize as ended (duration=0)
-        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, fundraiser.1, vault, 30_000_000, 0, 0, 0);
+        let init_ix = build_initialize_ix(&maker, mint, fundraiser.0, vault, 30_000_000, 0);
         let msg = Message::new(&[init_ix], Some(&maker.pubkey()));
         let tx = Transaction::new(&[&maker], msg, svm.latest_blockhash());
         svm.send_transaction(tx).unwrap();

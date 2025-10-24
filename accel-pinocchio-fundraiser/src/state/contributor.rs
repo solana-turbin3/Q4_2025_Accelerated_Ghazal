@@ -24,18 +24,6 @@ impl Contributor {
         Ok(unsafe { &mut *(data.as_mut_ptr() as *mut Self) })
     }
 
-//   pub fn from_account_info<'a>(account_info: &'a AccountInfo,) -> Result<pinocchio::account_info::RefMut<'a, Self>, ProgramError> {
-//     let data = account_info.try_borrow_mut_data()?;
-//     if data.len() != Contributor::LEN {
-//         return Err(ProgramError::InvalidAccountData);
-//     }
-//     if (data.as_ptr() as usize) % core::mem::align_of::<Self>() != 0 {
-//         return Err(ProgramError::InvalidAccountData);
-//     }
-//     Ok(std::cell::RefMut::map(data, |d| unsafe {&mut *(d.as_mut_ptr() as *mut Self)}))
-// }
-
-
     pub fn amount(&self) -> u64 {
         u64::from_le_bytes(self.amount)
     }
