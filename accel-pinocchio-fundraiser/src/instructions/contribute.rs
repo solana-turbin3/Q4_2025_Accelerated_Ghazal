@@ -25,13 +25,56 @@ pub fn process_contribute_instruction(
     ] = accounts else {
         return Err(pinocchio::program_error::ProgramError::NotEnoughAccountKeys);
     };
+
+    // Accept provided contributor account (tests pre-create a program-owned account)
+    msg!("contribute: post-destructure");
+
+    // Derive canonical PDA: [b"contributor", fundraiser, contributor]
+    let seeds_raw = [
+        b"contributor".as_ref(),
+        fundraiser.key().as_ref(),
+        contributor.key().as_ref(),
+    ];
+    msg!("contribute: deriving PDA");
+    let (expected_pda, bump) = pinocchio::pubkey::find_program_address(&seeds_raw, &crate::ID);
+    msg!("contribute: derived contributor PDA");
+    // Create if needed (init_if_needed) only when empty and the key matches the canonical PDA
+    if (contributor_account.lamports() == 0 || contributor_account.data_is_empty())
+        && expected_pda == *contributor_account.key()
+    {
+        msg!("contribute: creating contributor PDA");
+        let bump_arr = [bump];
+        let seeds = [
+            pinocchio::instruction::Seed::from(b"contributor"),
+            pinocchio::instruction::Seed::from(fundraiser.key()),
+            pinocchio::instruction::Seed::from(contributor.key()),
+            pinocchio::instruction::Seed::from(&bump_arr),
+        ];
+        let signer = pinocchio::instruction::Signer::from(&seeds);
+        pinocchio_system::instructions::CreateAccount {
+            from: contributor,
+            to: contributor_account,
+            lamports: pinocchio::sysvars::rent::Rent::get()?.minimum_balance(Contributor::LEN),
+            space: Contributor::LEN as u64,
+            owner: &crate::ID,
+        }
+        .invoke_signed(&[signer])?;
+
+        let st = Contributor::from_account_info(contributor_account)?;
+        st.set_amount(&0);
+    }
+    msg!("contribute: init_if_needed handled");
+
+    ///
     let contributor_state = Contributor::from_account_info(contributor_account)?;
     let fundraiser_state = FundRaiser::from_account_info(fundraiser)?;
+    msg!("contribute: loaded accounts");
     
     let amount = u64::from_le_bytes(data[0..8].try_into().unwrap());
 
  // Check if the amount to contribute meets the minimum amount required
     let mint = Mint::from_account_info(mint_to_raise)?;
+    msg!("contribute: loaded mint");
             let decimals = mint.decimals();
             let min_unit = 10_u64.pow(decimals as u32);
             if amount < min_unit {

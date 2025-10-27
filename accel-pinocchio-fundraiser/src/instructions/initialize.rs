@@ -1,8 +1,8 @@
 use pinocchio::{
     account_info::AccountInfo, instruction::{Seed, Signer}, msg, pubkey::log, sysvars::{rent::Rent, Sysvar}, ProgramResult
 };
-use pinocchio_pubkey::derive_address;
 use pinocchio_system::instructions::CreateAccount;
+use pinocchio_token::state::Mint;
 
 use crate::state::fundraiser::FundRaiser;
 pub fn process_initialize_instruction(
@@ -24,24 +24,20 @@ pub fn process_initialize_instruction(
     ] = accounts else {
         return Err(pinocchio::program_error::ProgramError::NotEnoughAccountKeys);
     };
-   
-    //let bump = data[0];
-    let mut bump_opt: Option<u8> = None;
-    for b in 0u8..=u8::MAX {
-    let seed = [b"fundraiser".as_ref(), maker.key().as_slice(), &[b]];
-    if derive_address(&seed, None, &crate::ID) == *fundraiser.key() {
-    bump_opt = Some(b);
-    break;
-    }
-    }
-    let bump = bump_opt.ok_or(pinocchio::program_error::ProgramError::InvalidArgument)?;
-    //
-    let seed = [b"fundraiser".as_ref(), maker.key().as_slice(), &[bump]];
-    let fundraiser_account_pda = derive_address(&seed, None, &crate::ID);
+   if !maker.is_signer() { return Err(pinocchio::program_error::ProgramError::MissingRequiredSignature); }
+
+    let base_seeds = [b"fundraiser".as_ref(), maker.key().as_ref()];
+    let (fundraiser_pda, bump) = pinocchio::pubkey::find_program_address(&base_seeds, &crate::ID);//
+    let fundraiser_account_pda = fundraiser_pda;
+    //if expected_pda != *fundraiser.key() { return Err(pinocchio::program_error::ProgramError::InvalidArgument); }
     log(&fundraiser_account_pda);
     log(&fundraiser.key());
     assert_eq!(fundraiser_account_pda, *fundraiser.key());
  
+let mint = Mint::from_account_info(mint_to_raise)?;
+if !mint.is_initialized() { return Err(pinocchio::program_error::ProgramError::UninitializedAccount); }
+
+
     let mut i = 0;
     let amount_to_raise = u64::from_le_bytes(data[i..i+8].try_into().unwrap()); i += 8;
     let duration = data[i];
